@@ -1,9 +1,0 @@
-__pycache__/
-.vscode/
-usage_statistics_webtalk.*
-*.bit
-*.dcp
-*.ll
-*.stdout
-*.stderr
-*.dump
