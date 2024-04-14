@@ -36,7 +36,7 @@ class BitLocator:
     bel_name = match.group("bel")
 
     slr_name = self._get_slr_name(bel_y, self._ar_spec.num_clb_per_column())
-    top_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_clb_per_column())
+    half_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_clb_per_column())
     (col_major, col_tile_type) = self._get_col_major(bel_x, slr_name, row_major, FarBlockType.CLB_IO_CLK)
 
     # Encodings are per-column, so we compute the relative offset of the BEL's y-value in a CLB column.
@@ -46,7 +46,7 @@ class BitLocator:
     far = FrameAddressRegister(
       reserved=0,
       block_type=FarBlockType.CLB_IO_CLK,
-      top_bit = top_bit,
+      half_bit = half_bit,
       row_addr=row_major,
       col_addr=col_major,
       minor_addr=minor,
@@ -69,7 +69,7 @@ class BitLocator:
     bel_name = match.group("bel")
 
     slr_name = self._get_slr_name(bel_y, self._ar_spec.num_clb_per_column())
-    top_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_clb_per_column())
+    half_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_clb_per_column())
     (col_major, col_tile_type) = self._get_col_major(bel_x, slr_name, row_major, FarBlockType.CLB_IO_CLK)
 
     # Encodings are per-column, so we compute the relative offset of the BEL's y-value in a CLB column.
@@ -81,7 +81,7 @@ class BitLocator:
       FrameAddressRegister(
         reserved=0,
         block_type=FarBlockType.CLB_IO_CLK,
-        top_bit = top_bit,
+        half_bit = half_bit,
         row_addr=row_major,
         col_addr=col_major,
         minor_addr=minor,
@@ -109,7 +109,7 @@ class BitLocator:
 
     assert size_kb == 18, f"Error: Only 18K BRAM encodings are supported for now."
     slr_name = self._get_slr_name(bel_y, self._ar_spec.num_18k_bram_per_column())
-    top_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_18k_bram_per_column())
+    half_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_18k_bram_per_column())
     (col_major, col_tile_type) = self._get_col_major(bel_x, slr_name, row_major, FarBlockType.BRAM_CONTENT)
 
     # Encodings are per-column, so we compute the relative offset of the BEL's y-value in a BRAM column.
@@ -121,7 +121,7 @@ class BitLocator:
       FrameAddressRegister(
         reserved=0,
         block_type=FarBlockType.BRAM_CONTENT,
-        top_bit = top_bit,
+        half_bit = half_bit,
         row_addr=row_major,
         col_addr=col_major,
         minor_addr=minor,
@@ -134,7 +134,7 @@ class BitLocator:
       FrameAddressRegister(
         reserved=0,
         block_type=FarBlockType.BRAM_CONTENT,
-        top_bit = top_bit,
+        half_bit = half_bit,
         row_addr=row_major,
         col_addr=col_major,
         minor_addr=minor,
@@ -149,8 +149,8 @@ class BitLocator:
     self,
     slr_name: str
   ) -> tuple[int, int]:
-    min_rowMajor = self._device_summary.get_min_clock_region_row_idx(slr_name)
-    max_rowMajor = self._device_summary.get_max_clock_region_row_idx(slr_name)
+    min_rowMajor = self._device_summary.get_min_clock_region_row_idx(slr_name) #assume absolute
+    max_rowMajor = self._device_summary.get_max_clock_region_row_idx(slr_name) #assume absolute
     return (min_rowMajor, max_rowMajor)
 
   def _get_slr_name(
@@ -204,22 +204,24 @@ class BitLocator:
     # The row major is numbered as  [0 .. max_clock_region_row] in vivado and spans *all* SLRs.
     # However, the row major in a frame address starts back at 0 in *every* SLR.
     # We therefore transform the absolute row major into a relative one before returning.
-    center =  (max_rowMajor+min_rowMajor)/2
+    center =  (max_rowMajor+1+min_rowMajor)/2
     rel_rowMajor_from_bottom = abs_rowMajor - min_rowMajor 
     rel_rowMajor_from_top = max_rowMajor - min_rowMajor
     rel_rowMajor = abs(center - abs_rowMajor)
-    top_bit = 0
+    half_bit = 0
     #if in bottom  half
     if(abs(rel_rowMajor_from_top)>abs(rel_rowMajor_from_bottom)):
-        top_bit = 1
-    return top_bit, rel_rowMajor
+        half_bit = 1
+        #account for center being first row in top half
+        rel_rowMajor-=1
+    return half_bit, rel_rowMajor
 
   def _get_col_major(
     self,
     bel_x: int,
     # SLR in which the BEL is located.
     slr_name: str,
-    top_bit: int,
+    half_bit: int,
     # Row major in which the BEL is located. This is the *relative* row major
     # inside the target SLR.
     row_major: int,
@@ -233,10 +235,10 @@ class BitLocator:
     if block_type == FarBlockType.CLB_IO_CLK:
       # The x-value is the CLB column number. We lookup the device resource file to map this
       # logical CLB column number to a physical major column number.
-      colMajor = self._device_summary.get_clb_col_majors(slr_name, top_bit, row_major)[bel_x]
-      tileType = self._device_summary.get_clb_tile_types(slr_name, top_bit, row_major)[bel_x]
+      colMajor = self._device_summary.get_clb_col_majors(slr_name, half_bit, row_major)[bel_x]
+      tileType = self._device_summary.get_clb_tile_types(slr_name, half_bit, row_major)[bel_x]
     else:
-      colMajor = self._device_summary.get_bram_content_col_majors(slr_name, top_bit, row_major)[bel_x]
+      colMajor = self._device_summary.get_bram_content_col_majors(slr_name, half_bit, row_major)[bel_x]
       # All BRAM columns have the same tile type.
       tileType = "BRAM"
 
