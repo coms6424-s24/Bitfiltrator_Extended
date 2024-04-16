@@ -74,5 +74,4 @@ python.
 
     ```python
         cmd = ["python", script_path, *args]
-
     ```
