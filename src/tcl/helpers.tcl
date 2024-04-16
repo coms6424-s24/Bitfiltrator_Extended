@@ -308,8 +308,8 @@ proc tcl_to_json { list_or_str } {
 proc format_json { json_str } {
   set script_path [file dirname [file normalize [info script]]]
   set format_json_script [file dirname ${script_path}]/format_json.py
-  # set formatted [exec python3 -m json.tool << ${json_str}]
-  set formatted [exec python3 ${format_json_script} --sort_keys << ${json_str}]
+  # set formatted [exec python -m json.tool << ${json_str}]
+  set formatted [exec python ${format_json_script} --sort_keys << ${json_str}]
   return ${formatted}
 }
 

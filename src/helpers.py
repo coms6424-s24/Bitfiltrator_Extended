@@ -74,7 +74,7 @@ def run_script(
   if extension == ".tcl":
     cmd = ["vivado", "-mode", "batch", "-source", script_path, "-notrace", "-tclargs", *args]
   elif extension == ".py":
-    cmd = ["python3", script_path, *args]
+    cmd = ["python", script_path, *args]
   else:
     assert False, f"Error: Unknown file extension {extension} for script {script_path}"
 
