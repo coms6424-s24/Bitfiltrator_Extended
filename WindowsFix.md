@@ -58,20 +58,51 @@ code relies on Vivado's Python3 for to run certain commands. So to adapt the
 code to work on Windows all explicit Python3 references need to be changed to
 python.
 
-1. Change `src\tcl\helpers.tcl` line 311 to:
+### To get generate_fpga_part_files.py to work
 
-    ```tcl
-      # set formatted [exec python -m json.tool << ${json_str}]
+1. Need to get the following command to work
+
+    Line 21 from `src\generate_fpga_part_files.py`
+
+    ```cmd
+    vivado -mode batch -source {full path}\Bitfiltrator_Extended\src\tcl\get_parts.tcl -notrace -tclargs .*ultrascale.* {full path}\Bitfiltrator_Extended\resources\parts_all.json
     ```
 
-2. Change `src\tcl\helpers.tcl` line 311 and 312 change python3 to python
+    line 27 from `src\generate_fpga_part_files.py`
 
-    ```tcl
-      set formatted [exec python ${format_json_script} --sort_keys << ${json_str}]
+    ```cmd
+    vivado -mode batch -source  {full path}\Bitfiltrator_Extended\src\tcl\get_parts.tcl -notrace -tclargs -keep_webpack_only .*ultrascale.*  {full path}\Bitfiltrator_Extended\resources\parts_webpack.json
     ```
 
-3. Change `src\helpers.py` line 77 python3 to python
+    1. Change `src\tcl\helpers.tcl` line 311 to:
 
-    ```python
-        cmd = ["python", script_path, *args]
-    ```
+        ```tcl
+        # set formatted [exec python -m json.tool << ${json_str}]
+        ```
+
+    2. Change `src\tcl\helpers.tcl` line 311 and 312 change python3 to python
+
+        ```tcl
+        set formatted [exec python ${format_json_script} --sort_keys << ${json_str}]
+        ```
+
+    3. Change `src\helpers.py` line 77 python3 to python
+
+        ```python
+            cmd = ["python", script_path, *args]
+        ```
+
+## TODO
+
+Fix line 99 in `src\helpers.py`
+
+Issue:
+    - The commands it runs Line 21 & 27 from `src\generate_fpga_part_files.py`
+    both work when run from the command prompt
+    - Issue appears to be the vivado command being called From a .py file
+    - That doesn't make sense b/c vivado
+        - is in the `PATH`
+        - can be run from the commandline w/ no issue
+    - if the commands from line 21 & 27 from `src\generate_fpga_part_files.py`
+    are run from the command prompt, then `src\helpers.py` does recognize that
+    the files are made and doesn't try to recreate the files
