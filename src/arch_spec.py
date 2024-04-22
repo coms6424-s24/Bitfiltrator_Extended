@@ -30,12 +30,14 @@ class ArchSpec(abc.ABC):
 
   def far_block_type_width(self) -> int:
     return helpers.width(self.far_block_type_idx_high(), self.far_block_type_idx_low())
+  def far_half_bit_width(self) -> int:
+    return helpers.width(self.far_half_bit_idx_high(), self.far_half_bit_idx_low())
   @abc.abstractmethod
-  def far_top_bit_idx_high(self) -> int:
+  def far_half_bit_idx_high(self) -> int:
     raise NotImplementedError
 
   @abc.abstractmethod
-  def far_top_bit_idx_low(self) -> int:
+  def far_half_bit_idx_low(self) -> int:
     raise NotImplementedError
 
   @abc.abstractmethod
@@ -129,8 +131,8 @@ class ArchSpec(abc.ABC):
       self.far_reserved_idx_low(),
       self.far_block_type_idx_high(),
       self.far_block_type_idx_low(),
-      self.far_top_bit_idx_high(),
-      self.far_top_bit_idx_low(),
+      self.far_half_bit_idx_high(),
+      self.far_half_bit_idx_low(),
       self.far_row_address_idx_high(),
       self.far_row_address_idx_low(),
       self.far_column_address_idx_high(),
@@ -183,8 +185,8 @@ class Seven_SeriesSpec(ArchSpec):
   def far_reserved_idx_low(self) -> int: return 26
   def far_block_type_idx_high(self) -> int: return 25
   def far_block_type_idx_low(self) -> int: return 23
-  def far_top_bit_idx_high(self) -> int: return 22
-  def far_top_bit_idx_low(self) -> int: return 22
+  def far_half_bit_idx_high(self) -> int: return 22
+  def far_half_bit_idx_low(self) -> int: return 22
   def far_row_address_idx_high(self) -> int: return 21
   def far_row_address_idx_low(self) -> int: return 17
   def far_column_address_idx_high(self) -> int: return 16
