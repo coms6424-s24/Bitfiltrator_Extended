@@ -1,0 +1,11 @@
+ideas for breaking the paper:
+
+In general focusing on the bit_locator file. 
+
+Relies on given publically accessible information about (for example) height of clock regions, which don't necessarily need to be publicized. Would prevent being able to translate from a slice X/Y value to see what clock region or SLR it's in. 
+
+Alternatively, if more than 1 potential height for clock region, could also make it extremely difficult, though obvious downsides to this approach
+
+Alternatively, don't have the grid of X and Y match cleanly with the grid addressing of FAR (i.e. perform some sort of encoding on the FAR so "sequential" for it would not be sequential on the board). Break the translation between slices and their FAR addresses. 
+
+ 
