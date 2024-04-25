@@ -118,12 +118,13 @@ class ArchSpec(abc.ABC):
     supported_archs = {ArchName.ULTRASCALE, ArchName.ULTRASCALE_PLUS, ArchName.Seven_SeriesSpec }
     assert arch in supported_archs, f"Error: Unknown architecture {arch}"
 
-    return Seven_SeriesSpec()
-    #if arch == ArchName.ULTRASCALE_PLUS:
-    #  return UltraScalePlusSpec()
-    #else:
-    #  return UltraScaleSpec()
-
+    if arch == ArchName.ULTRASCALE_PLUS:
+     return UltraScalePlusSpec()
+    elif arch == ArchName.ULTRASCALE:
+     return UltraScaleSpec()
+    else:
+      return Seven_SeriesSpec()
+    
   def __hash__(self) -> int:
     return hash((
       self.__class__,
