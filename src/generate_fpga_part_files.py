@@ -20,13 +20,13 @@ def generate_fpga_part_files():
 
   helpers.run_script(
     script_path=tcl_get_parts,
-    args=[".*ultrascale.*", str(all_parts_path)],
+    args=["(.*ultrascale.*)|(.*-7($| .*))", str(all_parts_path)],
     expected_output_paths=[all_parts_path]
   )
 
   helpers.run_script(
     script_path=tcl_get_parts,
-    args=["-keep_webpack_only", ".*ultrascale.*", str(webpack_parts_path)],
+    args=["-keep_webpack_only", "(.*ultrascale.*)|(.*-7($| .*))", str(webpack_parts_path)],
     expected_output_paths=[webpack_parts_path]
   )
 

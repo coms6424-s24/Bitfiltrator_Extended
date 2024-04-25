@@ -6,5 +6,4 @@ import enum
 class ArchName(enum.Enum):
   ULTRASCALE = enum.auto()
   ULTRASCALE_PLUS = enum.auto()
-  ULTRASCALE_PLUS = enum.auto()
   Seven_SeriesSpec = enum.auto()
