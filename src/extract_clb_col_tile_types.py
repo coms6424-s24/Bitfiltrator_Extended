@@ -136,9 +136,10 @@ def extract_clb_col_tile_types(
     )
   )
   #added a half bit layer
-  for (slrName, half_bit,rowMajor_dict) in slr_rowMajor_slice_tile.items():
-    for (rowMajor, siteTile_dict) in rowMajor_dict.items():
-      res["slrs"][slrName]["half_bit"][half_bit]["rowMajors"][rowMajor]["clb_tileTypes"] = extract_col_types(siteTile_dict)
+  for (slrName, half_bit_dict) in slr_rowMajor_slice_tile.items():
+    for (half_bit, rowMajor_dict) in half_bit_dict.items():
+      for (rowMajor, siteTile_dict) in rowMajor_dict.items():
+        res["slrs"][slrName]["half_bit"][half_bit]["rowMajors"][rowMajor]["clb_tileTypes"] = extract_col_types(siteTile_dict)
 
   # Emit output file.
   with open(out_path, "w") as f:
