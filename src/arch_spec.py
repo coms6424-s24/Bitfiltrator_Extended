@@ -7,6 +7,8 @@ import resources
 from arch_names import ArchName
 
 
+#Changed static methods to return values from 7 series, and added a 7 series archspec based on its FAR from UG470
+
 # Abstract architecture.
 class ArchSpec(abc.ABC):
   @abc.abstractmethod
@@ -89,22 +91,22 @@ class ArchSpec(abc.ABC):
 
   @staticmethod
   def num_reg_per_clb() -> int:
-    # UG574: UltraScale Architecture Configurable Logic Block (pg 15)
+    # UG474: 7 series Architecture Configurable Logic Block (pg 15)
     return 16
 
   @staticmethod
   def num_dsp_per_column() -> int:
-    # UG574: 7 series picture
+    # UG474: 7 series picture
     return 20
 
   @staticmethod
   def num_36k_bram_per_column() -> int:
-    # UG574: 7 series picture
+    # UG474: 7 series picture
     return 10
 
   @staticmethod
   def num_18k_bram_per_column() -> int:
-    # UG574: 7 series picture
+    # UG474: 7 series picture
     return 20
 
   # Factory method to create a spec.
@@ -118,13 +120,12 @@ class ArchSpec(abc.ABC):
     supported_archs = {ArchName.ULTRASCALE, ArchName.ULTRASCALE_PLUS, ArchName.Seven_SeriesSpec }
     assert arch in supported_archs, f"Error: Unknown architecture {arch}"
 
-    if arch == ArchName.ULTRASCALE_PLUS:
-     return UltraScalePlusSpec()
-    elif arch == ArchName.ULTRASCALE:
-     return UltraScaleSpec()
-    else:
-      return Seven_SeriesSpec()
-    
+    return Seven_SeriesSpec()
+    #if arch == ArchName.ULTRASCALE_PLUS:
+    #  return UltraScalePlusSpec()
+    #else:
+    #  return UltraScaleSpec()
+
   def __hash__(self) -> int:
     return hash((
       self.__class__,

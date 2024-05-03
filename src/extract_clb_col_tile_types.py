@@ -1,5 +1,5 @@
 # author: Sahand Kashani <sahand.kashani@epfl.ch>
-#ASSUMING device_info["composition"]["slrs"].items()["max_clock_region_row_idx"] is ABOSLUTE
+#ASSUMING device_info["composition"]["slrs"].items()["max_clock_region_row_idx"] is ABSOLUTE
 import argparse
 import re
 from collections import defaultdict
@@ -43,8 +43,12 @@ def extract_clb_col_tile_types(
   #       ...
   #     }
   #   },
+
+  #added another layer of default dict to allow for extra layer of 'half_bit'
   slr_rowMajor_slice_tile = defaultdict(
-    lambda: defaultdict(dict)
+    lambda: defaultdict(
+        lambda: defaultdict(dict)
+    )
   )
 
   for (slrName, slrProperties) in device_info["composition"]["slrs"].items():
@@ -59,9 +63,15 @@ def extract_clb_col_tile_types(
     # tile names.
 
     #rowMajor is absolute, as is clock_regions_in_row
-    #center is center of SLR by row 0
-    center =  (max_clock_region_row_idx+1+min_clock_region_row_idx)/2
+    #The idea is that there is a center line dividing each SLR which need to determine top or bottom half from, 
+    #and the relative row num is the distance from that center, with bottom being 1 and top being 0. So we get the min and max rows,
+    #find the center line, and then do the calculations for each absolute major row to get the relative row for each.
+     
+    #center is center of SLR by row 0, in top half (so add +1 to make it top half )
+
+    center =  round((max_clock_region_row_idx+min_clock_region_row_idx)/2)+1
     for rowMajor in range(min_clock_region_row_idx, max_clock_region_row_idx + 1):
+      #Format of X<x>Y<y>
       clock_regions_in_row = [f"X{x}Y{rowMajor}" for x in range(min_clock_region_col_idx, max_clock_region_col_idx + 1)]
 
       for clock_region in clock_regions_in_row:
@@ -73,6 +83,7 @@ def extract_clb_col_tile_types(
               for site in sites:
                 if re.match(r"SLICE_X(\d+)Y(\d+)", site):
                   #change this to allow for halves
+                  #get distance from top and bottom to see which half the row is in
                   rel_rowMajor_from_bottom = rowMajor - min_clock_region_row_idx 
                   rel_rowMajor_from_top = rowMajor - max_clock_region_row_idx
                   rel_rowMajor = abs(center - rowMajor)
@@ -124,6 +135,7 @@ def extract_clb_col_tile_types(
       )
     )
   )
+  #added a half bit layer
   for (slrName, half_bit,rowMajor_dict) in slr_rowMajor_slice_tile.items():
     for (rowMajor, siteTile_dict) in rowMajor_dict.items():
       res["slrs"][slrName]["half_bit"][half_bit]["rowMajors"][rowMajor]["clb_tileTypes"] = extract_col_types(siteTile_dict)

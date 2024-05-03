@@ -57,6 +57,7 @@ def dump_fars(
 ) -> None:
   lines: list[str] = list()
 
+  #added a half bit to the FAR 
   csv_hdr = f"IDCODE,FAR,RESERVED,BLOCK_TYPE,HALF_BIT,ROW_ADDR,COL_ADDR,MINOR_ADDR"
   lines.append(csv_hdr)
   for (idcode, fars) in idcode_fars.items():
