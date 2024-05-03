@@ -238,11 +238,13 @@ def get_majors(
   # The cr_row_idx below is the Y-value of the clock region. It is not the major row!
   # The major row is relative to each SLR.
 
+  #For the moment, assuming the SLR covers the device as with most 7 series devices. 
+   
   for (slr_name, cr_row_idx, cr_dsp_bottom, cr_dsp_top) in dsps:
     min_clock_region_row_idx = device_summary.get_min_clock_region_row_idx(slr_name)
     max_clock_region_row_idx = device_summary.get_max_clock_region_row_idx(slr_name)
     
-    center =  (max_clock_region_row_idx+1+min_clock_region_row_idx)/2
+    center =  round((max_clock_region_row_idx+min_clock_region_row_idx)/2)+1
     rel_rowMajor_from_bottom = cr_row_idx - min_clock_region_row_idx 
     rel_rowMajor_from_top = cr_row_idx - max_clock_region_row_idx
     major_row = abs(center - cr_row_idx)

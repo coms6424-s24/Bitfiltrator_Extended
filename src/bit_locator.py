@@ -43,6 +43,7 @@ class BitLocator:
     y_ofst = bel_y % self._ar_spec.num_clb_per_column()
     (minor, frame_ofst) = self._arch_summary.get_reg_loc(col_tile_type, y_ofst, bel_name)
 
+    #Added a half bit level to the hierarchy
     far = FrameAddressRegister(
       reserved=0,
       block_type=FarBlockType.CLB_IO_CLK,
@@ -69,6 +70,8 @@ class BitLocator:
     bel_name = match.group("bel")
 
     slr_name = self._get_slr_name(bel_y, self._ar_spec.num_clb_per_column())
+
+    #Added a half bit here since is part of the relative row major 
     half_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_clb_per_column())
     (col_major, col_tile_type) = self._get_col_major(bel_x, slr_name, row_major, FarBlockType.CLB_IO_CLK)
 
@@ -77,6 +80,7 @@ class BitLocator:
 
     (minors, frame_ofsts) = self._arch_summary.get_lut_loc(col_tile_type, y_ofst, bel_name)
 
+    #Added a half bit level to the hierarchy
     fars = [
       FrameAddressRegister(
         reserved=0,
@@ -109,6 +113,7 @@ class BitLocator:
 
     assert size_kb == 18, f"Error: Only 18K BRAM encodings are supported for now."
     slr_name = self._get_slr_name(bel_y, self._ar_spec.num_18k_bram_per_column())
+    #Added a half bit here since is part of the relative row major 
     half_bit, row_major = self._get_row_major(bel_y, slr_name, self._ar_spec.num_18k_bram_per_column())
     (col_major, col_tile_type) = self._get_col_major(bel_x, slr_name, row_major, FarBlockType.BRAM_CONTENT)
 
@@ -121,6 +126,7 @@ class BitLocator:
       FrameAddressRegister(
         reserved=0,
         block_type=FarBlockType.BRAM_CONTENT,
+        #Added a half bit level 
         half_bit = half_bit,
         row_addr=row_major,
         col_addr=col_major,
@@ -134,6 +140,7 @@ class BitLocator:
       FrameAddressRegister(
         reserved=0,
         block_type=FarBlockType.BRAM_CONTENT,
+        #Added a half bit level 
         half_bit = half_bit,
         row_addr=row_major,
         col_addr=col_major,
@@ -204,7 +211,10 @@ class BitLocator:
     # The row major is numbered as  [0 .. max_clock_region_row] in vivado and spans *all* SLRs.
     # However, the row major in a frame address starts back at 0 in *every* SLR.
     # We therefore transform the absolute row major into a relative one before returning.
-    center =  (max_rowMajor+1+min_rowMajor)/2
+     
+     #center is center of SLR by row 0, in top half (so add +1 to make it top half )
+
+    center =  round((abs_rowMajor+min_rowMajor)/2)+1
     rel_rowMajor_from_bottom = abs_rowMajor - min_rowMajor 
     rel_rowMajor_from_top = max_rowMajor - min_rowMajor
     rel_rowMajor = abs(center - abs_rowMajor)

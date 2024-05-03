@@ -116,14 +116,17 @@ def get_majors(
   #     }
   #   }
 
+  #added a half_bit layer
   res = defaultdict(
     lambda: defaultdict(
       lambda: defaultdict(
         lambda: defaultdict(
           lambda: defaultdict(
+            lambda: defaultdict(
             # We use a set as many entries in the logic location file may share the same column (BRAMs for example), and
             # we are only interested in which column numbers are used, not whether they are used multiple times or not.
-            lambda: defaultdict(set)
+              lambda: defaultdict(set)
+            )
           )
         )
       )
@@ -132,17 +135,19 @@ def get_majors(
   for (bitLocType, bitLocList) in bitLocType_bitLoc_dict.items():
     for bitLoc in bitLocList:
       far = FrameAddressRegister.from_int(bitLoc.frame_addr, ar_spec)
-      res["slrs"][bitLoc.slr_name][bitLocType]["rowMajors"][far.row_addr]["colMajors"].add((bitLoc.block_x, far.col_addr))
+      #added a half_bit layer
+      res["slrs"][bitLoc.slr_name][bitLocType]["half_bit"][far.half_bit]["rowMajors"][far.row_addr]["colMajors"].add((bitLoc.block_x, far.col_addr))
 
   # Sort the major columns list so it is easier to read.
   for (slrsKey, slrIdx_dict) in res.items():
     for (slrIdx, bitLocType_dict) in slrIdx_dict.items():
-      for (bitLocType, rowsKey_dict) in bitLocType_dict.items():
-        for (rowsKey, majorRows_dict) in rowsKey_dict.items():
-          for (majorRow, colsKey_dict) in majorRows_dict.items():
-            for (colsKey, majorCols_set) in colsKey_dict.items():
-              majorCols_dict = { block_x: col_addr for (block_x, col_addr) in majorCols_set}
-              res[slrsKey][slrIdx][bitLocType][rowsKey][majorRow][colsKey] = majorCols_dict
+      for (bitLocType, halves_dict) in bitLocType_dict.items():
+        for (half_bit, rowsKey_dict) in halves_dict.items():
+          for (rowsKey, majorRows_dict) in rowsKey_dict.items():
+            for (majorRow, colsKey_dict) in majorRows_dict.items():
+              for (colsKey, majorCols_set) in colsKey_dict.items():
+                majorCols_dict = { block_x: col_addr for (block_x, col_addr) in majorCols_set}
+                res[slrsKey][slrIdx][bitLocType][half_bit][rowsKey][majorRow][colsKey] = majorCols_dict
 
   return res
 

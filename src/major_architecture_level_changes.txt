@@ -1,0 +1,42 @@
+A list of files which had major changes, and some of the common ones added:
+
+In general, many of the files needed a 'half_bit' level of hierarchy between SLR name and relative row major 
+to translate from an absolute address to one used by the FAR. This generally involved adding a 'half_bit' layer and 
+adjusting the structure of variables accordingly. A general rule of thumb was that changes needed to be made anytime
+a relative row major was handled.
+
+This was done in extract_all_frame_addresses.py, extract_clb_col_tile_types.py, bit_locator.py, 
+frame.py, extract_col_majors_from_ll.py, extract_dsp_col_majors_from_bit.py, and extract_encoding_from_logic_loc.py
+
+
+To calculate what the half_ bit and relative row major are, we are using this information:
+
+The idea is that there is a center line dividing each SLR which need to determine top or bottom half from, 
+and the relative row num is the distance from that center, with bottom being 1 and top being 0. So we get the min and max rows,
+find the center line, and then do the calculations for each absolute major row to get the relative row for each.
+
+We generally then used this structure (changing depending on variable names)
+
+center corresponds to the center major row of the device, on the top half. Top half is signified by 0, while bottom half is 1.
+The code finds this center, then finds which end of the device it is closer to to calculate its half. 
+It then finds the distance from the center to get its relative row major
+
+center =  round((max_clock_region_row_idx+min_clock_region_row_idx)/2)+1
+rel_rowMajor_from_bottom = rowMajor - min_clock_region_row_idx 
+rel_rowMajor_from_top = rowMajor - max_clock_region_row_idx
+rel_rowMajor = abs(center - rowMajor)
+half_bit = 0
+#if in bottom  half
+if(abs(rel_rowMajor_from_top)>abs(rel_rowMajor_from_bottom)):
+    half_bit = 1
+    #account for center being first row in top half
+    rel_rowMajor-=1
+
+    This overall structure is found in bit_locator.py, extract_clb_col_tile_types.py, and extract_dsp_col_majors_from_bit.py.
+    It should be noted that extract_dsp_col_majors_from_bit.py assumes that only 1 SLR/device. While there may be ways around
+    this assumption, other matters took priorities over this
+
+    Other major changes were in arch_spec.py to add hardcoded data about the 7 series, bit_locator.py for redefining the FAR, 
+    and in general in frame.py. Extrct_num_majors_and_minors.py was examined, but it is hypothesized that no changes are needed.
+
+    Minor changes were also made to resource.py and arch_names.py
