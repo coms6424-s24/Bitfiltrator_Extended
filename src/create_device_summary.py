@@ -488,7 +488,7 @@ def create_summary(
       #
       # Recall that DSP information is not always fed to the device summary creation function. Check
       # comment at top of this function for background.
-      if dsp_majors is not None:
+      if dsp_majors is not None and len(dsp_majors.keys()) > 0:
         dsp_majors_rowMajorProperties = dsp_majors["slrs"][slrName]["DSP"]["rowMajors"].get(rowMajor_str)
         if dsp_majors_rowMajorProperties is not None:
           dsp_colMajors = dsp_majors_rowMajorProperties["colMajors"]
@@ -514,15 +514,15 @@ def create_summary(
           clb_tileTypes = clb_tileTypes_rowMajorProperties["clb_tileTypes"]
           summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["clb_tileTypes"] = clb_tileTypes
 
-      # This entry exists for ALL clock regions (including hidden ones).
-      # "num_minors_per_bram_content_colMajor": [ ... ],
-      num_minors_per_bram_colMajor = num_majors_and_minors["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_bram_colMajor"]
-      summary["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_bram_content_colMajor"] = num_minors_per_bram_colMajor
+        # This entry exists for ALL clock regions (including hidden ones).
+        # "num_minors_per_bram_content_colMajor": [ ... ],
+        num_minors_per_bram_colMajor = num_majors_and_minors["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_bram_colMajor"]
+        summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["num_minors_per_bram_content_colMajor"] = num_minors_per_bram_colMajor
 
-      # This entry exists for ALL clock regions (including hidden ones).
-      # "num_minors_per_std_colMajor": [ ... ],
-      num_minors_per_std_colMajor = num_majors_and_minors["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_std_colMajor"]
-      summary["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_std_colMajor"] = num_minors_per_std_colMajor
+        # This entry exists for ALL clock regions (including hidden ones).
+        # "num_minors_per_std_colMajor": [ ... ],
+        num_minors_per_std_colMajor = num_majors_and_minors["slrs"][slrName]["rowMajors"][rowMajor_str]["num_minors_per_std_colMajor"]
+        summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["num_minors_per_std_colMajor"] = num_minors_per_std_colMajor
 
   return summary
 

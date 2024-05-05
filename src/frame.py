@@ -162,8 +162,8 @@ class FrameAddressIncrementer:
       max_rowMajor = device_summary.get_max_far_row_idx(slrName) #assume RELATIVE
       for half_bit in range(2):
         for rowMajor in range(min_rowMajor, max_rowMajor + 1):
-          self.num_minors_per_std_colMajor[idcode][half_bit][rowMajor] = device_summary.get_num_minors_per_std_col_major(slrName, half_bit, rowMajor) #ASK ABOUT THIS IF WANT HALF_BIT. ASSUMING IS RELATIVE
-          self.num_minors_per_bram_colMajor[idcode][half_bit][rowMajor] = device_summary.get_num_minors_per_bram_content_col_major(slrName,half_bit, rowMajor) #ASK ABOUT THIS IF WANT HALF_BIT
+          self.num_minors_per_std_colMajor[idcode][rowMajor] = device_summary.get_num_minors_per_std_col_major(slrName, half_bit, rowMajor)
+          self.num_minors_per_bram_colMajor[idcode][rowMajor] = device_summary.get_num_minors_per_bram_content_col_major(slrName, half_bit, rowMajor)
 
   def get_colMajors_numMinors_count(
     self,
@@ -174,11 +174,11 @@ class FrameAddressIncrementer:
     int  # num minors in col major
   ]:
     if far.block_type == FarBlockType.CLB_IO_CLK:
-      num_col_majors = len(self.num_minors_per_std_colMajor[idcode][far.half_bit][far.row_addr])
-      num_minors_in_col_major = self.num_minors_per_std_colMajor[idcode][far.half_bit][far.row_addr][far.col_addr]
+      num_col_majors = len(self.num_minors_per_std_colMajor[idcode][far.row_addr])
+      num_minors_in_col_major = self.num_minors_per_std_colMajor[idcode][far.row_addr][far.col_addr]
     elif far.block_type == FarBlockType.BRAM_CONTENT:
-      num_col_majors = len(self.num_minors_per_bram_colMajor[idcode][far.half_bit][far.row_addr])
-      num_minors_in_col_major = self.num_minors_per_bram_colMajor[idcode][far.half_bit][far.row_addr][far.col_addr]
+      num_col_majors = len(self.num_minors_per_bram_colMajor[idcode][far.row_addr])
+      num_minors_in_col_major = self.num_minors_per_bram_colMajor[idcode][far.row_addr][far.col_addr]
     else:
       assert False, f"Error: Unexpected FAR block type {far.block_type}"
 

@@ -66,38 +66,39 @@ class DeviceSummary:
       self._slrName_minFarRowIdx[slrName] = min_far_row_idx
       self._slrName_maxFarRowIdx[slrName] = max_far_row_idx
 
-      for (rowMajor_str, rowMajorProperties) in slrProperties["rowMajors"].items():
-        rowMajor_int = int(rowMajor_str)
+      for half_bit in range(2):
+        for(rowMajor_str, rowMajorProperties) in slrProperties["half_bit"][str(half_bit)]["rowMajors"].items():
+          rowMajor_int = int(rowMajor_str)
 
-        # These fields are not always present if we are in a row that is hidden
-        # from the user (hidden in vivado), so we use `dict.get` instead of directly
-        # indexing the rowMajorProperties.
-        bram_content_colMajors: dict[str, int] = rowMajorProperties.get("bram_content_colMajors", dict())
-        bram_parity_colMajors: dict[str, int] = rowMajorProperties.get("bram_content_parity_colMajors", dict())
-        bram_reg_colMajors: dict[str, int] = rowMajorProperties.get("bram_reg_colMajors", dict())
-        dsp_colMajors: dict[str, int] = rowMajorProperties.get("dsp_colMajors", dict())
-        clb_colMajors: dict[str, int] = rowMajorProperties.get("clb_colMajors", dict())
-        clb_tileTypes: dict[str, str] = rowMajorProperties.get("clb_tileTypes", dict())
-        # These fields should always exist though.
-        num_minors_per_bram_content_colMajor: list[int] = rowMajorProperties["num_minors_per_bram_content_colMajor"]
-        num_minors_per_std_colMajor: list[int] = rowMajorProperties["num_minors_per_std_colMajor"]
+          # These fields are not always present if we are in a row that is hidden
+          # from the user (hidden in vivado), so we use `dict.get` instead of directly
+          # indexing the rowMajorProperties.
+          bram_content_colMajors: dict[str, int] = rowMajorProperties.get("bram_content_colMajors", dict())
+          bram_parity_colMajors: dict[str, int] = rowMajorProperties.get("bram_content_parity_colMajors", dict())
+          # bram_reg_colMajors: dict[str, int] = rowMajorProperties.get("bram_reg_colMajors", dict())
+          dsp_colMajors: dict[str, int] = rowMajorProperties.get("dsp_colMajors", dict())
+          clb_colMajors: dict[str, int] = rowMajorProperties.get("clb_colMajors", dict())
+          clb_tileTypes: dict[str, str] = rowMajorProperties.get("clb_tileTypes", dict())
+          # These fields should always exist though.
+          num_minors_per_bram_content_colMajor: list[int] = rowMajorProperties["num_minors_per_bram_content_colMajor"]
+          num_minors_per_std_colMajor: list[int] = rowMajorProperties["num_minors_per_std_colMajor"]
 
-        # Sanity check
-        bram_spec_lengths = set(map(len, [
-          bram_content_colMajors,
-          bram_parity_colMajors,
-          bram_reg_colMajors,
-        ]))
-        clb_spec_lengths = set(map(len, [
-          clb_colMajors,
-          clb_tileTypes
-        ]))
-        assert len(bram_spec_lengths) == 1, f"Error: bram specs have different lengths at row major {rowMajor_int}"
-        assert len(clb_spec_lengths), f"Error: clb specs have different lengths at row major {rowMajor_int}"
+          # Sanity check
+          bram_spec_lengths = set(map(len, [
+            bram_content_colMajors,
+            bram_parity_colMajors,
+            # bram_reg_colMajors,
+          ]))
+          clb_spec_lengths = set(map(len, [
+            clb_colMajors,
+            clb_tileTypes
+          ]))
+          assert len(bram_spec_lengths) == 1, f"Error: bram specs have different lengths at row major {rowMajor_int}"
+          assert len(clb_spec_lengths), f"Error: clb specs have different lengths at row major {rowMajor_int}"
 
         self._slrNameRowMajor_bramContentColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in bram_content_colMajors.items()}
         self._slrNameRowMajor_bramParityColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in bram_parity_colMajors.items()}
-        self._slrNameRowMajor_bramRegColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in bram_reg_colMajors.items()}
+        # self._slrNameRowMajor_bramRegColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in bram_reg_colMajors.items()}
         self._slrNameRowMajor_dspColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in dsp_colMajors.items()}
         self._slrNameRowMajor_clbColMajors[(slrName, rowMajor_int)] = {int(k): v for (k, v) in clb_colMajors.items()}
         self._slrNameRowMajor_clbTileTypes[(slrName, rowMajor_int)] = {int(k): v for (k, v) in clb_tileTypes.items()}
@@ -210,6 +211,7 @@ class DeviceSummary:
   def get_clb_col_majors(
     self,
     slr_name: str,
+    half_bit: int,
     row_major: int
   ) -> dict[
     int, # slice_x
@@ -230,6 +232,7 @@ class DeviceSummary:
   def get_num_minors_per_bram_content_col_major(
     self,
     slr_name: str,
+    half_bit: int,
     row_major: int
   ) -> list[int]:
     return self._slrNameRowMajor_numMinorsPerBramContentColMajor[(slr_name, row_major)]
@@ -237,6 +240,7 @@ class DeviceSummary:
   def get_num_minors_per_std_col_major(
     self,
     slr_name: str,
+    half_bit: int,
     row_major: int
   ) -> list[int]:
     return self._slrNameRowMajor_numMinorsPerStdColMajor[(slr_name, row_major)]

@@ -4,7 +4,7 @@ module dsp ();
 
   genvar i;
   generate
-    for (i=0; i<G_SIZE; i=i+1) begin : DSP48E2_gen
+    for (i=0; i<G_SIZE; i=i+1) begin : DSP48E1_gen
       (* DONT_TOUCH = "yes" *)
       DSP48E1 #(
 // Feature Control Attributes: Data Path Selection
@@ -85,7 +85,6 @@ DSP48E1_inst (
 .CEP(1'b1),                        // 1-bit input: Clock enable for PREG
 .RSTA(1'b0),                       // 1-bit input: Reset for AREG
 .RSTALLCARRYIN(1'b0), 
-.RSTALUMODE(RSTALUMODE), // 1-bit input: Reset input for ALUMODEREG
 .RSTALUMODE(1'b0),                 // 1-bit input: Reset for ALUMODEREG
 .RSTB(1'b0),                       // 1-bit input: Reset for BREG
 .RSTC(1'b0),                       // 1-bit input: Reset for CREG
@@ -94,6 +93,7 @@ DSP48E1_inst (
 .RSTM(1'b0),                       // 1-bit input: Reset for MREG
 .RSTP(1'b0)                        // 1-bit input: Reset for PREG);
 // End of DSP48E1_inst instantiation
+);
     end
   endgenerate
 

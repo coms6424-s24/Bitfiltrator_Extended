@@ -135,8 +135,10 @@ def get_majors(
   for (idcode, major_row, half_bit, major_col) in diff_idcode_majorRow_majorCol:
     slr_name = idcode_to_slr[idcode]
     #assume need 
-    slr_clb_col_majors: set[int] = device_summary.get_clb_col_majors(slr_name, half_bit, major_row).values()
-
+    try:
+      slr_clb_col_majors: set[int] = device_summary.get_clb_col_majors(slr_name, half_bit, major_row).values()
+    except KeyError:
+      continue # 7-series adjust
     # # Debug
     # num_minors_per_std_colMajor = slr_row_summary["num_minors_per_std_colMajor"]
     # num_minors = num_minors_per_std_colMajor[major_col]
@@ -255,7 +257,7 @@ def get_majors(
         #account for center being first row in top half
         major_row-=1
 
-    pattern = r"DSP48E2_X(?P<x>\d+)Y(?P<y>\d+)"
+    pattern = r"DSP48_X(?P<x>\d+)Y(?P<y>\d+)"
     match_bottom = helpers.regex_match(pattern, cr_dsp_bottom)
     match_top = helpers.regex_match(pattern, cr_dsp_top)
     (dsp_bottom_x, dsp_bottom_y) = (int(match_bottom.group("x")), int(match_bottom.group("y")))
