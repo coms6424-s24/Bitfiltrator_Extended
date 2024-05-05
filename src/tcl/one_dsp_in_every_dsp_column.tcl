@@ -29,14 +29,14 @@ set script_path [file dirname [file normalize [info script]]]
 # DSPs in the column, but not ALL (unlike LAGUNA cells for example which take up the full height of a CLB column).
 #
 # We therefore need the bottom- and top-most DSP of each column so we can accurately tell which (SLR, major_row) a DSP
-# is located in given its name (DSP48E2_X<x>Y<y>).
+# is located in given its name (DSP48E1_X<x>Y<y>).
 proc get_candidate_dsps {} {
   puts "Enumerating DSPs"
 
   # Empty list we will populate.
   set saved_dsp_locs {}
 
-  set dsp_site_pattern "DSP48E2_X(\\d+)Y(\\d+)"
+  set dsp_site_pattern "DSP48E1_X(\\d+)Y(\\d+)"
 
   # Get the min/max SLR indices.
   lassign [get_slr_index_boundaries] min_slr_idx max_slr_idx
@@ -87,7 +87,7 @@ proc get_candidate_dsps {} {
 
             if { [llength ${sites}] > 0 } {
               # Select the site with the smallest Y coordinate. We can sort the sites and select
-              # the first one using `lsort -dictionary {list}` as all sites have names like "DSP48E2_X(\d+)Y(\d+)/([ABCDEFGH]FF2?)"
+              # the first one using `lsort -dictionary {list}` as all sites have names like "DSP48E1_X(\d+)Y(\d+)/([ABCDEFGH]FF2?)"
               # and the X coordinate is identical between all entries (they are in the same column). The
               # entries will therefore be sorted by their Y-value.
               set sites_sorted [lsort -dictionary ${sites}]
@@ -150,7 +150,7 @@ proc main { fpga_part bitstream_out_name dsp_out_name } {
     set dsp_bottom_loc [lindex ${dsp_loc_pair_info} 2]
     set dsp_top_loc [lindex ${dsp_loc_pair_info} 3]
     # The name we query here is the name used in the verilog file.
-    set dsp_bottom_cell [get_cells "DSP48E2_gen[${idx}].DSP48E2_inst"]
+    set dsp_bottom_cell [get_cells "DSP48E1_gen[${idx}].DSP48E1_inst"]
     place_cell ${dsp_bottom_cell} ${dsp_bottom_loc}
   }
 
