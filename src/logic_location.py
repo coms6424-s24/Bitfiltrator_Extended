@@ -54,6 +54,8 @@ class BitLoc:
     #
     #   <offset> <frame address> <frame offset> <SLR name> <SLR number> <information>
     #   Bit   10585636 0x0000670c    4 SLR0 1 Block=SLICE_X53Y0 Latch=BQ Net=FDRE_gen[49].FDRE_inst_n_0
+    #   Bit  4023843 0x0040019f      3 Block=SLICE_X2Y0 Latch=AQ Net=FDRE_gen[1].FDRE_inst_n_0
+
     #
     # The frame address is in hex, hence why I don't simply use \d+ to parse it.
     # Note that the "-" in <ofst_dec> is simply because I generate a dummy logic
@@ -61,13 +63,26 @@ class BitLoc:
     # the file with "-1" as the bit offset to easily know it is an unofficial output.
     pattern = r"Bit\s+(?P<ofst_dec>-?\d+)\s+0x(?P<frame_addr_hex>[0-9a-fA-F]+)\s+(?P<frame_ofst_dec>\d+)\s+(?P<slr_name>\w+)\s+(?P<slr_number>\d+)\s+(?P<info>.*)"
     match = re.match(pattern, bit_line)
-    assert match is not None, f"Error: Unrecognized bit line {bit_line} in logic location file."
 
-    ofst = int(match.group("ofst_dec"))
-    frame_addr = int(match.group("frame_addr_hex"), 16)
-    frame_ofst = int(match.group("frame_ofst_dec"))
-    slr_name = match.group("slr_name")
-    slr_number = int(match.group("slr_number"))
+    if match is not None:
+      ofst = int(match.group("ofst_dec"))
+      frame_addr = int(match.group("frame_addr_hex"), 16)
+      frame_ofst = int(match.group("frame_ofst_dec"))
+      slr_name = match.group("slr_name")
+      slr_number = int(match.group("slr_number"))
+    else:
+      pattern_7 = r"Bit\s+(?P<ofst_dec>-?\d+)\s+0x(?P<frame_addr_hex>[0-9a-fA-F]+)\s+(?P<frame_ofst_dec>\d+)\s+(?P<info>.*)"
+      match = re.match(pattern_7, bit_line)
+      
+      assert match is not None, f"Error: Unrecognized bit line {bit_line} in logic location file."
+      
+      ofst = int(match.group("ofst_dec"))
+      frame_addr = int(match.group("frame_addr_hex"), 16)
+      frame_ofst = int(match.group("frame_ofst_dec"))
+      # No SLR's in 7-series
+      slr_name = 'SLR0'
+      slr_number = 0
+    
 
     # Different bit formats exist depending on the type of resource that is being documented:
     #
@@ -90,6 +105,8 @@ class BitLoc:
     info_dict: dict[str, str] = dict()
     for k_equal_v in info_pairs:
       (k, v) = k_equal_v.split("=")
+      if k == 'Ram':
+        k = 'RAM' # Adjust for different capitalization for 7-series
       info_dict[k] = v
 
     # All bit lines have a "Block" key in the info region, so it is ok to index
