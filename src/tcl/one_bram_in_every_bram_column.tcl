@@ -88,14 +88,14 @@ proc get_candidate_brams {} {
 
               # Keep track of the BRAM BEL as the next element of the large BRAM ring we want to create.
               # Note that Vivado names the BELs obtained by running `[get_bels -of_objects ${site}]` for
-              # a BRAM site as "RAMBFIFO18", not "RAMB18E2" or "FIFO18E2". This is wrong and we cannot use
+              # a BRAM site as "RAMBFIFO18", not "RAMB18E1" or "FIFO18E1". This is wrong and we cannot use
               # the bel name "RAMBFIFO18" to successfully place a BRAM. Valid names I have found are
-              # - FIFO18E2 (but only for the bottom 18K BRAM)
-              # - RAMB18E2_L (when Y is an even number)
-              # - RAMB18E2_U (when Y is an odd number)
-              # I therefore manually place "RAMB18E2_L" after the "/" that separates the site name from
+              # - FIFO18E1 (but only for the bottom 18K BRAM)
+              # - RAMB18E1_L (when Y is an even number)
+              # - RAMB18E1_U (when Y is an odd number)
+              # I therefore manually place "RAMB18E1_L" after the "/" that separates the site name from
               # the BEL inside it as I couldn't get vivado to programmatically generate the correct names.
-              # lappend saved_bram_locs "${site}/RAMB18E2_L"
+              # lappend saved_bram_locs "${site}/RAMB18E1_L"
 
               # Note that one should use a BEL when placing a cell, but you csn use a SITE if there is
               # only 1 way (i.e. 1 BEL) where the cell can be placed in the site. This is the case for
@@ -140,7 +140,7 @@ proc main { fpga_part bitstream_out_name } {
   # Place all BRAMs at the locations we computed before synthesis.
   foreach idx [struct::list iota ${num_brams}] bram_loc ${bram_sites} {
     # The name we query here is the name used in the verilog file.
-    set bram_cell [get_cells "bram_gen[${idx}].RAMB18E2_inst"]
+    set bram_cell [get_cells "bram_gen[${idx}].RAMB18E1_inst"]
     # Note that bram_loc is a SITE, not a BEL. However, the site we have chosen can accomodate
     # our cell in only 1 way, so we let Vivado choose this configuration automatically (unlike
     # for SLICEs where a register could be placed in multiple places and we need to specify
