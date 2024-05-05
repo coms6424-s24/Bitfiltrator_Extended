@@ -390,7 +390,11 @@ def create_summary(
           # fields are either lists, dicts, or a single int. We choose list as the general
           # structure and we'll overwrite the entries that are supposed to map to
           # a number later.
-          lambda: defaultdict(list)
+          lambda: defaultdict(
+            lambda: defaultdict(
+              lambda: defaultdict(list)
+            )
+          )
         )
       )
     )
@@ -458,24 +462,26 @@ def create_summary(
 
       # This entry should only exist for "real" clock regions (not hidden ones).
       # "bram_content_colMajors": [ ... ],
-      bram_mem_rowMajorProperties = bram_majors["slrs"][slrName]["BramMemLoc"]["rowMajors"].get(rowMajor_str)
-      if bram_mem_rowMajorProperties is not None:
-        bram_mem_colMajors = bram_mem_rowMajorProperties["colMajors"]
-        summary["slrs"][slrName]["rowMajors"][rowMajor_str]["bram_content_colMajors"] = bram_mem_colMajors
+      for half_bit in range(2):
+        bram_mem_rowMajorProperties = bram_majors["slrs"][slrName]["BramMemLoc"]['half_bit'][str(half_bit)]["rowMajors"].get(rowMajor_str)
+        if bram_mem_rowMajorProperties is not None:
+          bram_mem_colMajors = bram_mem_rowMajorProperties["colMajors"]
+          summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["bram_content_colMajors"] = bram_mem_colMajors
 
       # This entry should only exist for "real" clock regions (not hidden ones).
       # "bram_content_parity_colMajors": [ ... ],
-      bram_mem_parity_rowMajorProperties = bram_majors["slrs"][slrName]["BramMemParityLoc"]["rowMajors"].get(rowMajor_str)
-      if bram_mem_parity_rowMajorProperties is not None:
-        bram_mem_parity_colMajors = bram_mem_parity_rowMajorProperties["colMajors"]
-        summary["slrs"][slrName]["rowMajors"][rowMajor_str]["bram_content_parity_colMajors"] = bram_mem_parity_colMajors
+      for half_bit in range(2):
+        bram_mem_parity_rowMajorProperties = bram_majors["slrs"][slrName]["BramMemParityLoc"]['half_bit'][str(half_bit)]["rowMajors"].get(rowMajor_str)
+        if bram_mem_parity_rowMajorProperties is not None:
+          bram_mem_parity_colMajors = bram_mem_parity_rowMajorProperties["colMajors"]
+          summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["bram_content_parity_colMajors"] = bram_mem_parity_colMajors
 
-      # This entry should only exist for "real" clock regions (not hidden ones).
-      # "bram_reg_colMajors": [ ... ],
-      bram_reg_rowMajorProperties = bram_majors["slrs"][slrName]["BramRegLoc"]["rowMajors"].get(rowMajor_str)
-      if bram_reg_rowMajorProperties is not None:
-        bram_reg_colMajors = bram_reg_rowMajorProperties["colMajors"]
-        summary["slrs"][slrName]["rowMajors"][rowMajor_str]["bram_reg_colMajors"] = bram_reg_colMajors
+        # This entry should only exist for "real" clock regions (not hidden ones).
+        # "bram_reg_colMajors": [ ... ],
+        # bram_reg_rowMajorProperties = bram_majors["slrs"][slrName]["BramRegLoc"]['half_bit'][str(half_bit)]["rowMajors"].get(rowMajor_str)
+        # if bram_reg_rowMajorProperties is not None:
+        #   bram_reg_colMajors = bram_reg_rowMajorProperties["colMajors"]
+        #   summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["bram_reg_colMajors"] = bram_reg_colMajors
 
       # This entry should only exist for "real" clock regions (not hidden ones).
       # "dsp_colMajors": [ ... ],
@@ -494,17 +500,19 @@ def create_summary(
 
       # This entry should only exist for "real" clock regions (not hidden ones).
       # "clb_colMajors": [ ... ],
-      clb_majors_rowMajorProperties = clb_majors["slrs"][slrName]["RegLoc"]["rowMajors"].get(rowMajor_str)
-      if clb_majors_rowMajorProperties is not None:
-        clb_colMajors = clb_majors_rowMajorProperties["colMajors"]
-        summary["slrs"][slrName]["rowMajors"][rowMajor_str]["clb_colMajors"] = clb_colMajors
+      for half_bit in range(2):
+        clb_majors_rowMajorProperties = clb_majors["slrs"][slrName]["RegLoc"]['half_bit'][str(half_bit)]["rowMajors"].get(rowMajor_str)
+        if clb_majors_rowMajorProperties is not None:
+          clb_colMajors = clb_majors_rowMajorProperties["colMajors"]
+          summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["clb_colMajors"] = clb_colMajors
 
       # This entry should only exist for "real" clock regions (not hidden ones).
       # "clb_tileTypes": [ ... ],
-      clb_tileTypes_rowMajorProperties = clb_col_tile_types["slrs"][slrName]["rowMajors"].get(rowMajor_str)
-      if clb_tileTypes_rowMajorProperties is not None:
-        clb_tileTypes = clb_tileTypes_rowMajorProperties["clb_tileTypes"]
-        summary["slrs"][slrName]["rowMajors"][rowMajor_str]["clb_tileTypes"] = clb_tileTypes
+      for half_bit in range(2):
+        clb_tileTypes_rowMajorProperties = clb_col_tile_types["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"].get(rowMajor_str)
+        if clb_tileTypes_rowMajorProperties is not None:
+          clb_tileTypes = clb_tileTypes_rowMajorProperties["clb_tileTypes"]
+          summary["slrs"][slrName]['half_bit'][str(half_bit)]["rowMajors"][rowMajor_str]["clb_tileTypes"] = clb_tileTypes
 
       # This entry exists for ALL clock regions (including hidden ones).
       # "num_minors_per_bram_content_colMajor": [ ... ],

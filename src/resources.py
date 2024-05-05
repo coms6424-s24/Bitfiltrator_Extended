@@ -64,10 +64,12 @@ def load_part_files() -> None:
       for (device, parts_list) in devices_dict.items():
         for part in parts_list:
 
-          #Changed to look for 7 series
-          if re.search(r"series\+", arch, re.IGNORECASE):
+          if re.search(r"ultrascale\+", arch, re.IGNORECASE):
+            part_deviceArch[part] = (device, ArchName.ULTRASCALE_PLUS)
+          elif re.search(r"ultrascale", arch, re.IGNORECASE):
+            part_deviceArch[part] = (device, ArchName.ULTRASCALE)
+          elif re.search(r".*-7($| .*)", arch):
             part_deviceArch[part] = (device, ArchName.Seven_SeriesSpec)
-          
 
     return part_deviceArch
 
@@ -86,7 +88,16 @@ def get_device_and_arch(
   fpga_part: str
 ) -> tuple[str, ArchName]:
   load_part_files()
-  (device, arch) = _parts_all_db[fpga_part]
+  try:
+    (device, arch) = _parts_all_db[fpga_part]
+  except KeyError:
+    potential_part_nums = [key for key in _parts_all_db.keys() if key.startswith(fpga_part) or key.startswith('xc' + fpga_part)]
+    
+    if len(potential_part_nums) > 0:
+      print(f"Could not find FPGA with part {fpga_part} in resources! Picking part {potential_part_nums[0]}")
+      (device, arch) = _parts_all_db[potential_part_nums[0]]
+    else:
+      raise KeyError(f"Could not find FPGA with part {fpga_part} in resources!")
   return (device, arch)
 
 def get_device_summary_path(
