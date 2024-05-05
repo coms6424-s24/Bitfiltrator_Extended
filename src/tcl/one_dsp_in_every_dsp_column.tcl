@@ -36,7 +36,7 @@ proc get_candidate_dsps {} {
   # Empty list we will populate.
   set saved_dsp_locs {}
 
-  set dsp_site_pattern "DSP48E1_X(\\d+)Y(\\d+)"
+  set dsp_site_pattern "DSP48_X(\\d+)Y(\\d+)"
 
   # Get the min/max SLR indices.
   lassign [get_slr_index_boundaries] min_slr_idx max_slr_idx
@@ -69,22 +69,27 @@ proc get_candidate_dsps {} {
         # some clock regions are taken up by hard processors. These processors are not visible in the
         # floorplan and are not returned as tiles when querying the contents of the clock region.
         if { [llength ${cr_tiles}] > 0 } {
+          # puts "Clock region ${clock_region} is NOT empty"
           # Get the min/max col index for the tiles in the clock region.
           lassign [get_clock_region_tile_col_boundaries ${clock_region}] min_tile_col_idx max_tile_col_idx
 
           # Iterate over the columns in the clock region in order.
           for {set tile_col_idx ${min_tile_col_idx}} {${tile_col_idx} <= ${max_tile_col_idx}} {incr tile_col_idx} {
+            # puts "Iterating over tile_col_idx: ${tile_col_idx}"
             # Tiles at the given column.
             # Note that we use "-quiet" as we know some columns contain no tiles (and hence no sites).
             # Vivado emts a warning for every such column it encounters and this gives
             # the impression something is wrong. However, we handle this case explicitly
             # in what follows, so we use "quiet" here to remove the warning.
             set tiles [get_tiles -quiet -of_objects ${clock_region} -filter "COLUMN == ${tile_col_idx}"]
-
+            # puts "Filtered tiles: ${tiles}"
             # Keep sites that correspond to DSPs. We again use -quiet to avoid warnings
             # since we explicitly handle the case where there are no bels below.
+            # set full_sites [get_sites -quiet -of_objects ${tiles}]
+            # puts "Full sites: ${full_sites}"
+             
             set sites [get_sites -quiet -of_objects ${tiles} -regexp ${dsp_site_pattern}]
-
+            # puts "Matched sites: ${sites}"
             if { [llength ${sites}] > 0 } {
               # Select the site with the smallest Y coordinate. We can sort the sites and select
               # the first one using `lsort -dictionary {list}` as all sites have names like "DSP48E1_X(\d+)Y(\d+)/([ABCDEFGH]FF2?)"
